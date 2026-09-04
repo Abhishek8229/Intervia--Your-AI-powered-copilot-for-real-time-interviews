@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Intervia Diagnostics</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 14px; background: #0f1117; color: #f4f4f4; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; }
+      h1 { font-size: 16px; margin: 0 0 10px 0; }
+      h2 { font-size: 12px; letter-spacing: 1px; color: #9ca3af; margin: 14px 0 6px 0; border-bottom: 1px solid #374151; padding-bottom: 4px;}
+      .row { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; align-items: center; }
+      button { background: #2563eb; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+      button.ghost { background: rgba(255,255,255,0.08); color: #cbd5f5; }
+      button:disabled { opacity: 0.5; cursor: wait; }
+      .box { background: rgba(255,255,255,0.04); border-radius: 6px; padding: 8px; font-family: Consolas, monospace; font-size: 12px; white-space: pre-wrap; overflow-x: auto; margin-top: 4px; }
+      .success { color: #10b981; }
+      .error { color: #ef4444; }
+      .warning { color: #f59e0b; }
+      .muted { color: #9ca3af; }
+      .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-weight: 700; font-size: 11px; }
+      .b-ready { background: rgba(156,163,175,0.2); color: #9ca3af; }
+      .b-stream { background: rgba(245,158,11,0.2); color: #f59e0b; }
+      .b-frames { background: rgba(16,185,129,0.2); color: #10b981; }
+      .b-noframes { background: rgba(239,68,68,0.2); color: #ef4444; }
+      .b-error { background: rgba(239,68,68,0.35); color: #fecaca; }
+      table.check { border-collapse: collapse; width: 100%; font-size: 12px; }
+      table.check td, table.check th { border-bottom: 1px solid #374151; padding: 4px 6px; text-align: left; font-family: Consolas, monospace; }
+    </style>
+  </head>
+  <body>
+    <h1>Intervia Developer Diagnostics</h1>
+    <p class="warning">Warning: Used for real physical machine validation. Modifies no persistent state.</p>
+
+    <h2>PHYSICAL CHECKLIST (PASS / FAIL WITH MEASURED VALUES)</h2>
+    <div id="checklist-out" class="box muted">Run the tests below — results appear here.</div>
+
+    <h2>SYSTEM & CONFIG</h2>
+    <div class="row">
+      <button id="btn-run-system">Refresh System Status</button>
+      <button id="btn-export" class="ghost">Export Diagnostics (redacted)</button>
+    </div>
+    <div id="system-out" class="box muted">Waiting...</div>
+    <div id="export-out" class="box muted"></div>
+
+    <h2>AUDIO & TRANSCRIPTION</h2>
+    <div class="row">
+      <button id="btn-test-mic">Test Microphone (5s — speak!)</button>
+      <button id="btn-test-sys">Test System Audio (5s — play sound!)</button>
+      <button id="btn-audio-sources" class="ghost">List Audio Sources</button>
+      <button id="btn-stop-audio" class="ghost">Stop Audio Test</button>
+    </div>
+    <div id="audio-state-out" class="box muted">Microphone: READY / System: READY</div>
+    <div id="audio-out" class="box muted">Waiting...</div>
+    <div class="row"><span class="muted">Live input levels (while capturing or testing):</span></div>
+    <div id="levels-out" class="box muted">levels: -</div>
+    <div class="row"><span class="muted">Selected devices:</span></div>
+    <div id="devices-out" class="box muted">devices: -</div>
+
+    <h2>LLM PIPELINE (FAST + STRONG)</h2>
+    <div class="row">
+      <button id="btn-test-pipeline">Run Question Pipeline Test</button>
+      <button id="btn-test-sim">Simulate Interview Flow</button>
+    </div>
+    <div id="pipeline-out" class="box muted">Waiting...</div>
+
+    <h2>SCREEN & VISION</h2>
+    <div class="row">
+      <button id="btn-test-screen">Test Screen Capture & OCR</button>
+      <button id="btn-screen-frame" class="ghost">Capture Raw Screen Frame</button>
+      <button id="btn-screen-sources" class="ghost">List Screen Sources</button>
+      <button id="btn-region" class="ghost">Capture Region (Ctrl+Shift+S)</button>
+      <button id="btn-region-report" class="ghost">Region Report</button>
+    </div>
+    <div id="screen-out" class="box muted">Waiting...</div>
+
+    <script src="./diagnostics.js"></script>
+  </body>
+</html>

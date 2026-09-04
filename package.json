@@ -1,0 +1,82 @@
+{
+  "name": "intervia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Intervia - Real-time interview copilot (overlay + transcription + question detection)",
+  "author": "Intervia",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:preload": "tsc -p tsconfig.preload.json",
+    "build:renderer": "node scripts/copy-renderer.js",
+    "build:app": "tsc -p tsconfig.main.json && tsc -p tsconfig.preload.json && node scripts/copy-renderer.js",
+    "build:package": "npm run build:app && electron-builder --win --x64 --publish=never",
+    "build": "npm run build:package",
+    "start": "npm run build:app && electron .",
+    "verify": "npm run build:app && node scripts/verify.js && node scripts/verify-mock-server.js && node scripts/verify-conversation.js && node scripts/verify-screen.js && node scripts/verify-screen-reading.js && node scripts/verify-candidates.js && node scripts/verify-validation.js && node scripts/verify-capture-fixes.js && node scripts/verify-audio-devices.js && node scripts/verify-audio-meters.js && node scripts/verify-audio-levels.js && node scripts/verify-pipeline.js && node scripts/verify-product.js && node scripts/verify-experience.js && node scripts/verify-fallback.js && node scripts/verify-quit.js",
+    "clean": "node -e \"const fs=require('fs');fs.rmSync('dist',{recursive:true,force:true});fs.rmSync('build',{recursive:true,force:true});fs.rmSync('release',{recursive:true,force:true});\""
+  },
+  "dependencies": {
+    "koffi": "^3.2.0",
+    "mammoth": "^1.12.2",
+    "node-addon-api": "^8.0.0",
+    "pdf-parse": "^2.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "docx": "^9.7.1",
+    "electron": "^32.1.2",
+    "electron-builder": "^26.0.0",
+    "pdf-lib": "^1.17.1",
+    "typescript": "^5.6.2"
+  },
+  "build": {
+    "appId": "com.intervia.app",
+    "productName": "Intervia",
+    "copyright": "Copyright © 2026 Intervia",
+    "directories": {
+      "output": "release",
+      "buildResources": "build-resources"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json",
+      "!**/node_modules/*/{README.md,readme.md,*.d.ts,*.map,CHANGELOG.md,changelog.md,LICENSE,license,docs,doc}/**",
+      "!**/*.{md,markdown}",
+      "!**/{.DS_Store,.git,.idea,.vscode,test,tests,__tests__,coverage,docs}/**"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/koffi/**/*",
+      "node_modules/@koromix/koffi*/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName} Setup ${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Intervia"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    }
+  }
+}

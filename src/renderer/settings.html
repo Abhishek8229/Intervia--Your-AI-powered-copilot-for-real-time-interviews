@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Intervia Setup</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 14px; background: #0f1117; color: #f4f4f4; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; }
+      h1 { font-size: 16px; margin: 0 0 10px 0; }
+      h2 { font-size: 12px; letter-spacing: 1px; color: #9ca3af; margin: 14px 0 6px 0; }
+      .row { display: flex; gap: 6px; margin: 4px 0; flex-wrap: wrap; align-items: center; }
+      button { background: #2563eb; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+      button.ghost { background: rgba(255,255,255,0.08); color: #cbd5f5; }
+      button.danger { background: #7f1d1d; }
+      select, input[type=text], input[type=password], textarea { background: #1f2937; color: #f4f4f4; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 5px 8px; font-size: 12px; }
+      .editor { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px; margin: 6px 0; }
+      .editor label { display: block; color: #9ca3af; font-size: 11px; margin: 6px 0 2px 0; }
+      .editor input, .editor textarea { width: 100%; }
+      .editor textarea.tall { min-height: 70px; font-family: Consolas, monospace; font-size: 11px; }
+      select { max-width: 320px; }
+      textarea { width: 100%; min-height: 110px; font-family: Consolas, monospace; }
+      .list { display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; }
+      .item { display: flex; gap: 6px; align-items: center; background: rgba(255,255,255,0.04); padding: 5px 8px; border-radius: 6px; }
+      .item .grow { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .muted { color: #6b7280; font-size: 12px; }
+      .mono { font-family: Consolas, monospace; font-size: 11px; white-space: pre-wrap; word-break: break-word; }
+      .meter { position: relative; width: 140px; height: 12px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; flex: none; }
+      .meter-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #10b981 0%, #10b981 60%, #f59e0b 60%, #f59e0b 85%, #ef4444 85%, #ef4444 100%); background-size: 140px 100%; }
+      .meter::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 5px, #0f1117 5px 7px); pointer-events: none; }
+      .meter.inactive { opacity: 0.4; }
+      .db { min-width: 52px; color: #9ca3af; font-family: Consolas, monospace; font-size: 11px; }
+      .dot { font-size: 12px; line-height: 1; flex: none; }
+      .dot.ok { color: #10b981; }
+      .dot.bad { color: #ef4444; }
+      .dot.unknown { color: #6b7280; }
+      .diag { background: rgba(255,255,255,0.04); border-radius: 6px; padding: 6px 8px; margin: 4px 0; }
+      #detail { max-height: 260px; overflow-y: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>Intervia Setup</h1>
+    <div class="row"><span class="muted">New here? 1) Import your resume below → 2) add your Gemini key under AI Answers → 3) press Start on the overlay.</span></div>
+
+    <h2>AUDIO DEVICES</h2>
+    <div class="row">
+      <span class="muted" style="min-width:90px">Microphone:</span>
+      <select id="mic-select"></select>
+      <span id="mic-status" class="dot unknown" title="microphone availability">&#9679;</span>
+      <div class="meter inactive" id="mic-meter" title="Live microphone level (while capturing or testing)"><div class="meter-fill" id="mic-meter-fill"></div></div>
+      <span id="mic-db" class="db">-60 dB</span>
+    </div>
+    <div class="row">
+      <span class="muted" style="min-width:90px">System Output:</span>
+      <select id="output-select"></select>
+      <span id="output-status" class="dot unknown" title="output availability">&#9679;</span>
+      <div class="meter inactive" id="sys-meter" title="Live system-audio level from loopback capture (while capturing or testing)"><div class="meter-fill" id="sys-meter-fill"></div></div>
+      <span id="sys-db" class="db">-60 dB</span>
+      <button id="output-play" class="ghost" title="Play a short test tone through the selected output">&#9654; Play</button>
+    </div>
+    <div class="row"><span id="output-play-status" class="muted"></span></div>
+    <div class="row">
+      <button id="devices-refresh" class="ghost">Refresh Devices</button>
+      <button id="devices-default" class="ghost">Use Defaults</button>
+    </div>
+    <div class="row"><span id="devices-note" class="muted"></span></div>
+
+    <h2>CANDIDATE PROFILE</h2>
+    <div class="row">
+      <select id="profile-select"></select>
+      <button id="profile-use">Use</button>
+      <button id="profile-new" class="ghost">New</button>
+      <button id="profile-edit" class="ghost">Edit</button>
+      <button id="profile-import">Import Resume (PDF/DOCX)</button>
+      <button id="profile-delete" class="ghost danger">Delete</button>
+    </div>
+    <div class="row"><span id="profile-summary" class="muted"></span></div>
+    <div class="row">
+      <input type="text" id="edit-skills" placeholder="skills (comma separated)" style="flex:1" />
+      <button id="save-skills" class="ghost">Save skills</button>
+    </div>
+    <div id="profile-editor" class="editor" hidden>
+      <div class="row"><span class="muted">Edit profile — manual changes are saved with source “user-entered”; resume facts keep their evidence.</span></div>
+      <label>Name</label><input type="text" id="pe-name" />
+      <label>Headline</label><input type="text" id="pe-headline" />
+      <label>Summary</label><textarea id="pe-summary"></textarea>
+      <label>Years of experience</label><input type="text" id="pe-years" placeholder="e.g. 5" />
+      <label>Skills (comma separated)</label><input type="text" id="pe-skills" />
+      <label>Technologies (comma separated)</label><input type="text" id="pe-tech" />
+      <label>Achievements (one per line)</label><textarea id="pe-achieve"></textarea>
+      <label>Languages (comma separated)</label><input type="text" id="pe-lang" />
+      <label>Experience (JSON array — company, title, startDate, endDate, summary, responsibilities[])</label><textarea id="pe-exp" class="tall"></textarea>
+      <label>Projects (JSON array — name, description, technologies[])</label><textarea id="pe-proj" class="tall"></textarea>
+      <label>Education (JSON array — institution, degree, field)</label><textarea id="pe-edu" class="tall"></textarea>
+      <label>Verified facts (read-only — provenance)</label><div id="pe-facts" class="mono muted"></div>
+      <div class="row"><button id="pe-save">Save profile</button><button id="pe-cancel" class="ghost">Cancel</button><span id="pe-status" class="muted"></span></div>
+    </div>
+
+    <h2>PERSONA / MODE</h2>
+    <div class="row">
+      <select id="mode-select"><option value="real">Real candidate</option><option value="mock">Mock candidate</option></select>
+      <select id="persona-select"></select>
+      <button id="persona-use">Use persona</button>
+      <button id="persona-new" class="ghost">New persona</button>
+      <select id="answerlen-select" title="Spoken answer length"><option value="short">Short</option><option value="medium">Medium</option><option value="detailed">Detailed</option></select>
+    </div>
+
+    <h2>JOB DESCRIPTION</h2>
+    <div class="row">
+      <select id="jd-select"></select>
+      <button id="jd-use">Use</button>
+      <button id="jd-new" class="ghost">New</button>
+      <button id="jd-edit" class="ghost">Edit</button>
+      <button id="jd-delete" class="ghost danger">Delete</button>
+    </div>
+    <div class="row"><input type="text" id="jd-title" placeholder="Job title" style="flex:1" /></div>
+    <div class="row"><textarea id="jd-text" placeholder="Paste job description here, then Save JD"></textarea></div>
+    <div class="row"><button id="jd-save">Save JD</button><span id="jd-summary" class="muted"></span></div>
+    <div id="jd-editor" class="editor" hidden>
+      <div class="row"><span class="muted">Edit structured JD fields (parsed requirements stay reviewable below).</span></div>
+      <label>Title</label><input type="text" id="je-title" />
+      <label>Company</label><input type="text" id="je-company" />
+      <label>Summary</label><textarea id="je-summary"></textarea>
+      <label>Responsibilities (one per line)</label><textarea id="je-resp"></textarea>
+      <label>Required skills (comma separated)</label><input type="text" id="je-req" />
+      <label>Preferred skills (comma separated)</label><input type="text" id="je-pref" />
+      <label>Technologies (comma separated)</label><input type="text" id="je-tech" />
+      <label>Qualifications (one per line)</label><textarea id="je-qual"></textarea>
+      <div class="row"><button id="je-save">Save JD</button><button id="je-cancel" class="ghost">Cancel</button><span id="je-status" class="muted"></span></div>
+    </div>
+
+    <h2>AI ANSWERS</h2>
+    <div class="row"><span id="ai-summary" class="muted">Loading AI configuration…</span></div>
+    <div class="editor">
+      <div class="row"><span>🟢 <b>Primary — Gemini Free</b></span><span id="ai-gemini-status" class="muted"></span></div>
+      <div class="row">
+        <input type="password" id="ai-gemini-key" placeholder="Gemini API key" style="flex:1" autocomplete="off" />
+        <input type="text" id="ai-gemini-model" placeholder="Model (default: gemini-2.5-flash)" style="flex:1" />
+      </div>
+    </div>
+    <div class="editor">
+      <div class="row"><span>🟡 <b>Backup — OpenRouter Free</b></span><span id="ai-openrouter-status" class="muted"></span></div>
+      <div class="row">
+        <input type="password" id="ai-openrouter-key" placeholder="OpenRouter API key (free routes only)" style="flex:1" autocomplete="off" />
+      </div>
+      <div class="row"><span class="muted">Uses free routes only — never switches to a paid model on its own.</span></div>
+    </div>
+    <div class="editor">
+      <div class="row"><span>🔵 <b>Final Backup — Local AI</b></span><span id="ai-local-status" class="muted"></span></div>
+      <div class="row"><span class="muted">Offline fallback — works with no keys and no internet.</span></div>
+    </div>
+    <div class="row"><span class="muted">Fallback order: Gemini Free ↓ OpenRouter Free ↓ Local AI (automatic — no switching needed during an interview)</span></div>
+    <div class="row"><span class="muted">Keys stay on this machine only (local file, never exported or logged). Leave a key blank to keep the saved one.</span></div>
+    <div class="row"><button id="ai-save">Save AI Settings</button><span id="ai-status" class="muted"></span></div>
+
+    <h2>TRANSCRIPTION</h2>
+    <div class="row">
+      <span class="muted" style="min-width:90px">Transcription:</span>
+      <select id="prov-stt"><option value="whisper-server">Whisper server (local)</option><option value="groq">Groq cloud</option></select>
+    </div>
+
+    <h2>VISION</h2>
+    <div class="row"><span id="screen-summary" class="muted">Loading screen reading…</span></div>
+    <div class="row">
+      <span class="muted" style="min-width:90px">Vision mode:</span>
+      <select id="prov-vision"><option value="local">Local (no upload)</option><option value="remote">Remote (upload allowed)</option><option value="disabled">Disabled</option></select>
+    </div>
+    <div class="row"><span class="muted">Screen reading stays local (OCR) unless a diagram or complex visual needs Gemini Vision. Vision uploads only happen in Remote mode.</span></div>
+    <div class="row"><button id="providers-save">Save audio &amp; vision</button><span id="providers-status" class="muted"></span></div>
+    <div class="row"><span id="providers-summary" class="muted"></span></div>
+
+    <details id="advanced-providers">
+      <summary class="muted">Advanced</summary>
+      <div class="row">
+        <span class="muted" style="min-width:90px">Fast answer:</span>
+        <select id="prov-fast"><option value="mock">Mock (offline)</option><option value="gemini">Gemini</option><option value="minimax">MiniMax</option><option value="openai-compatible">OpenAI-compatible</option></select>
+        <input type="text" id="prov-fast-model" placeholder="fast model (blank = default)" style="flex:1" />
+      </div>
+      <div class="row">
+        <span class="muted" style="min-width:90px">Strong answer:</span>
+        <select id="prov-strong"><option value="mock">Mock (offline)</option><option value="gemini">Gemini</option><option value="minimax">MiniMax</option><option value="openai-compatible">OpenAI-compatible</option></select>
+        <input type="text" id="prov-strong-model" placeholder="strong model (blank = default)" style="flex:1" />
+      </div>
+      <div class="row">
+        <input type="password" id="key-gemini" placeholder="Gemini API key (advanced mirror)" style="flex:1" autocomplete="off" />
+        <input type="password" id="key-minimax" placeholder="MiniMax API key" style="flex:1" autocomplete="off" />
+      </div>
+      <div class="row">
+        <input type="password" id="key-groq" placeholder="Groq API key" style="flex:1" autocomplete="off" />
+        <input type="password" id="key-openai" placeholder="OpenAI-compatible key" style="flex:1" autocomplete="off" />
+      </div>
+      <div class="row">
+        <input type="text" id="adv-openrouter-model" placeholder="OpenRouter model override (blank = free auto)" style="flex:1" />
+      </div>
+    </details>
+
+    <h2>SESSION HISTORY</h2>
+    <div class="row">
+      <button id="sessions-refresh" class="ghost">Refresh</button>
+      <button id="sessions-clear" class="ghost danger">Clear all</button>
+    </div>
+    <div id="sessions-list" class="list"></div>
+    <div id="detail" class="mono"></div>
+
+    <h2>PROVIDERS & DIAGNOSTICS</h2>
+    <div class="row">
+      <button id="diag-run" class="ghost">Run provider check</button>
+      <button id="diag-open" class="ghost">Open Developer Diagnostics</button>
+    </div>
+    <div id="diag-list"></div>
+
+    <script src="./settings.js"></script>
+  </body>
+</html>

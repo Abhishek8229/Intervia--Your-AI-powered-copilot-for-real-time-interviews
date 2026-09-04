@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Intervia — Select region</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; }
+      body {
+        background: rgba(0, 0, 0, 0.35);
+        cursor: crosshair;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        user-select: none;
+      }
+      #hint {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(15, 17, 23, 0.9);
+        color: #f4f4f4;
+        font-size: 13px;
+        padding: 6px 14px;
+        border-radius: 8px;
+        pointer-events: none;
+      }
+      #rect {
+        position: fixed;
+        border: 2px solid #2563eb;
+        background: rgba(37, 99, 235, 0.15);
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="hint">Drag to select the question region — Esc to cancel</div>
+    <div id="rect"></div>
+    <script src="./screen-select.js"></script>
+  </body>
+</html>

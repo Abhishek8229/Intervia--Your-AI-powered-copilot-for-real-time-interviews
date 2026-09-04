@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Intervia</title>
+    <link rel="stylesheet" href="./overlay.css" />
+  </head>
+  <body>
+    <div id="root">
+      <header>
+        <span class="title">Intervia</span>
+        <span id="status-pill" class="pill ready">Ready</span>
+        <button id="toggle-btn" class="btn">Start</button>
+        <button id="clear-btn" class="btn ghost" title="Clear context">Clear</button>
+        <button id="setup-btn" class="btn ghost" title="Profiles, JD, persona, history">Setup</button>
+        <button id="quit-btn" class="btn quit" title="Quit Intervia completely (Ctrl+Shift+Q)">Quit</button>
+      </header>
+      <div id="session-row" class="session-row">
+        <span id="profile-label" class="mini">No profile</span>
+        <span id="persona-label" class="mini">Real</span>
+        <span id="job-label" class="mini">No JD</span>
+        <span id="session-label" class="mini">Idle</span>
+      </div>
+      <section class="streams">
+        <div class="stream">
+          <h3>MIC</h3>
+          <div id="mic-text" class="text">Listening...</div>
+        </div>
+        <div class="stream">
+          <h3>SYSTEM</h3>
+          <div id="system-text" class="text">Waiting for interview audio...</div>
+        </div>
+      </section>
+      <section class="panel" id="context-panel">
+        <h3>INTERVIEW CONTEXT</h3>
+        <div id="context-list" class="ctx-list"></div>
+      </section>
+      <section class="panel" id="question-panel">
+        <h3>QUESTION DETECTED</h3>
+        <div id="question-empty" class="muted">No questions yet.</div>
+        <div id="question-card" class="q-card" hidden>
+          <div id="question-text" class="q-text"></div>
+          <div class="q-meta">
+            <span class="tag" id="question-type"></span>
+            <span class="conf" id="question-conf"></span>
+          </div>
+        </div>
+      </section>
+      <section class="panel" id="answer-panel">
+        <h3>ANSWER <span class="tag" id="answer-state" hidden></span></h3>
+        <div id="answer-empty" class="muted">Answers appear here.</div>
+        <div id="answer-fast" class="text" hidden></div>
+        <div id="answer-strong" class="text strong" hidden></div>
+      </section>
+      <section class="panel" id="screen-panel">
+        <h3>SCREEN <span id="screen-state" class="pill ready">OFF</span>
+          <span id="ocr-state" class="mini">OCR -</span>
+          <span id="vision-state" class="mini">VISION -</span>
+        </h3>
+        <div class="row">
+          <button id="screen-btn" class="btn ghost">Screen: Start</button>
+          <button id="capture-btn" class="btn ghost">Capture now</button>
+          <button id="select-btn" class="btn ghost">Select region</button>
+        </div>
+        <div id="screen-text" class="muted">No screen context yet.</div>
+      </section>
+      <footer id="provider-info">Provider: -</footer>
+    </div>
+    <script src="./overlay.js"></script>
+  </body>
+</html>
